@@ -1,0 +1,42 @@
+{
+  "cabinets": [
+    { "label": "Matte Navy", "instruction": "change the cabinets to matte navy blue" },
+    { "label": "Sage Green", "instruction": "change the cabinets to sage green" },
+    { "label": "Warm White", "instruction": "change the cabinets to warm white" },
+    { "label": "Charcoal", "instruction": "change the cabinets to charcoal gray" },
+    { "label": "Walnut Wood", "instruction": "change the cabinets to natural walnut wood veneer" },
+    { "label": "Black", "instruction": "change the cabinets to matte black" }
+  ],
+  "countertops": [
+    { "label": "Calacatta Marble", "instruction": "change the countertops to Calacatta marble with gold veining" },
+    { "label": "Black Granite", "instruction": "change the countertops to polished black granite" },
+    { "label": "Butcher Block", "instruction": "change the countertops to light oak butcher block wood" },
+    { "label": "Concrete", "instruction": "change the countertops to honed concrete gray" },
+    { "label": "Quartz White", "instruction": "change the countertops to pure white quartz" },
+    { "label": "Soapstone", "instruction": "change the countertops to dark soapstone" }
+  ],
+  "backsplash": [
+    { "label": "White Subway", "instruction": "change the backsplash to classic white subway tile" },
+    { "label": "Zellige Terracotta", "instruction": "change the backsplash to Moroccan zellige terracotta tile" },
+    { "label": "Black Hex Marble", "instruction": "change the backsplash to black hexagonal marble mosaic" },
+    { "label": "Sage Zellige", "instruction": "change the backsplash to sage green zellige tile" },
+    { "label": "Polished Brass Fish Scale", "instruction": "change the backsplash to polished brass fish-scale tile" },
+    { "label": "Wood Look Porcelain", "instruction": "change the backsplash to wood-look porcelain slabs" }
+  ],
+  "flooring": [
+    { "label": "Light Oak Hardwood", "instruction": "change the floor to light oak hardwood planks" },
+    { "label": "Dark Walnut", "instruction": "change the floor to dark walnut hardwood" },
+    { "label": "Terracotta Tile", "instruction": "change the floor to terracotta clay tiles" },
+    { "label": "Polished Concrete", "instruction": "change the floor to polished concrete" },
+    { "label": "Black and White Checkerboard", "instruction": "change the floor to a black and white checkerboard tile pattern" },
+    { "label": "Herringbone Parquet", "instruction": "change the floor to herringbone parquet in pale ash" }
+  ],
+  "paint": [
+    { "label": "Crisp White", "instruction": "paint the walls crisp white" },
+    { "label": "Warm Greige", "instruction": "paint the walls warm greige" },
+    { "label": "Soft Sage", "instruction": "paint the walls soft sage green" },
+    { "label": "Deep Navy", "instruction": "paint the walls deep navy blue" },
+    { "label": "Terracotta", "instruction": "paint the walls terracotta orange" },
+    { "label": "Slate Blue", "instruction": "paint the walls slate blue" }
+  ]
+}

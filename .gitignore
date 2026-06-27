@@ -1,0 +1,36 @@
+# Model weights — never commit
+models/
+*.safetensors
+*.ckpt
+*.bin
+*.pt
+*.pth
+
+# Secrets
+.env
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# Node
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Output scratch
+out*.png
+out*.jpg
