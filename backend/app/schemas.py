@@ -14,8 +14,9 @@ class EditResponse(BaseModel):
 
 class ABRequest(BaseModel):
     image_b64: str
-    base_instruction: str
-    finishes: List[str]
+    base_instruction: str          # appended after each finish, e.g. "keep everything else unchanged"
+    finishes: List[str]            # full finish instruction strings, one per variant
+    labels: Optional[List[str]] = None  # display labels; if None, finishes strings are used as labels
     seed: int = 42
 
 

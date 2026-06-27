@@ -20,11 +20,13 @@ If you still hit OOM, quantize the transformer to fp8 with optimum-quanto
 from __future__ import annotations
 
 import logging
-from pathlib import Path
 from PIL import Image
-import torch
 
 from . import config
+
+# torch is imported lazily inside load_pipeline() / edit_image() so the
+# server can boot on a machine without the ML stack (e.g. CI or cold start
+# before the model is installed).  Do not add a top-level `import torch`.
 
 logger = logging.getLogger(__name__)
 
@@ -37,8 +39,24 @@ def load_pipeline() -> None:
     if _pipeline is not None:
         return
 
+    try:
+        import torch
+    except ImportError:
+        logger.warning(
+            "torch not installed — model will not load. "
+            "Install PyTorch (see requirements.txt) then restart the server."
+        )
+        return
+
     logger.info("Importing diffusers …")
-    from diffusers import FluxKontextPipeline
+    try:
+        from diffusers import FluxKontextPipeline
+    except ImportError:
+        logger.warning(
+            "diffusers not installed — model will not load. "
+            "Run: pip install git+https://github.com/huggingface/diffusers.git"
+        )
+        return
 
     logger.info("Loading %s (bfloat16) …", config.KONTEXT_MODEL_ID)
     pipe = FluxKontextPipeline.from_pretrained(
@@ -61,6 +79,26 @@ def is_loaded() -> bool:
     return _pipeline is not None
 
 
+def prepare_image(img: Image.Image, max_side: int = 1024) -> Image.Image:
+    """
+    Resize so the longest edge ≤ max_side, then round both dimensions down
+    to the nearest multiple of 16 (required by the FLUX VAE).
+
+    A 4K phone photo at full res will OOM the VAE encoder; this keeps
+    peak VRAM under control while preserving aspect ratio.
+    """
+    w, h = img.size
+    if max(w, h) > max_side:
+        scale = max_side / max(w, h)
+        w, h = int(w * scale), int(h * scale)
+    # Round down to multiple of 16
+    w = (w // 16) * 16
+    h = (h // 16) * 16
+    if (w, h) == img.size:
+        return img
+    return img.resize((w, h), Image.LANCZOS)
+
+
 def edit_image(image: Image.Image, instruction: str, seed: int) -> Image.Image:
     """
     Apply instruction to image and return the edited PIL image.
@@ -71,6 +109,7 @@ def edit_image(image: Image.Image, instruction: str, seed: int) -> Image.Image:
     if _pipeline is None:
         raise RuntimeError("Pipeline not loaded. Call load_pipeline() first.")
 
+    import torch
     # CPU generator is consistent regardless of which device runs the model.
     generator = torch.Generator("cpu").manual_seed(seed)
 
