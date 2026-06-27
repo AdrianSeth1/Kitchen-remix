@@ -13,16 +13,20 @@ Pillow>=10.3.0
 # torch==2.3.1+cu121  # uncomment and pin to your CUDA; install via pip index URL
 # torchvision==0.18.1+cu121
 
-# Diffusion pipeline (verify class names against docs before Phase 1)
-diffusers>=0.30.0
-transformers>=4.41.0
+# Diffusion pipeline
+# FluxKontextPipeline lives in diffusers main branch only (not yet on PyPI stable).
+# Install with:  pip install git+https://github.com/huggingface/diffusers.git
+# Once a stable release ships this can be pinned to a version number.
+diffusers @ git+https://github.com/huggingface/diffusers.git
+transformers>=4.44.0
 accelerate>=0.30.0
 sentencepiece>=0.2.0
 protobuf>=4.25.0
 
-# Optional: faster fp8 kernels
-# optimum>=1.20.0
-# quanto>=0.2.0
+# Optional: fp8 quantization of the transformer to cut VRAM ~50 % (12 GB vs 24 GB).
+# Needs a pre-quantized Kontext checkpoint or on-the-fly quantization:
+#   pip install optimum-quanto
+# See README for the full recipe.
 
 # Dev
 python-dotenv>=1.0.0
