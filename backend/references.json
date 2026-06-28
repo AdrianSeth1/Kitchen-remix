@@ -1,0 +1,14 @@
+{
+  "finish_reference_templates": {
+    "cabinets": "apply reference with realistic wood grain texture to cabinets",
+    "countertop": "apply reference as a glossy stone countertop surface",
+    "flooring": "apply reference as hardwood flooring pattern",
+    "backsplash": "apply reference as ceramic tile backsplash design"
+  },
+  "object_reference_templates": {
+    "sink": "replace with reference showing modern stainless steel sink",
+    "stove": "replace with reference showing induction stove",
+    "refrigerator": "replace with reference showing side-by-side fridge",
+    "dishwasher": "replace with reference showing built-in dishwasher"
+  }
+}

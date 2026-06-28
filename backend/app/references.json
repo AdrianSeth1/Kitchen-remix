@@ -1,0 +1,25 @@
+{
+  "_comment": "Curated prompt templates for reference-image edits. Tier A (finish reference) runs on FLUX.1 Kontext via a stitched left|right canvas, so its templates say 'left image' / 'right image'. Tier B (object reference) runs on Qwen-Image-Edit-2509 with two separate inputs, so its templates say 'first image' / 'second image'. Drop this in backend/app/ like finishes.json and structural.json.",
+
+  "finish_reference_templates": {
+    "cabinets": "Replace the cabinets in the left image with the cabinet style, color, and finish shown in the right image. Keep the kitchen's layout, countertops, backsplash, flooring, and appliances exactly the same.",
+    "countertops": "Replace the countertops in the left image with the countertop material and color shown in the right image. Keep the cabinets, backsplash, flooring, and appliances unchanged.",
+    "backsplash": "Replace the backsplash in the left image with the tile shown in the right image, matching its pattern and color. Keep the cabinets, countertops, flooring, and appliances unchanged.",
+    "flooring": "Replace the floor in the left image with the flooring material shown in the right image. Keep the cabinets, countertops, backsplash, and appliances unchanged."
+  },
+
+  "object_reference_templates": {
+    "refrigerator": "Replace the refrigerator in the first image with the refrigerator shown in the second image. Match its scale and perspective to the kitchen and keep everything else in the room unchanged.",
+    "range": "Replace the range/stove in the first image with the one shown in the second image. Match its scale and perspective to the kitchen and keep everything else unchanged.",
+    "range_hood": "Replace the range hood in the first image with the hood shown in the second image. Match its scale and placement above the range and keep everything else unchanged.",
+    "dishwasher": "Replace the dishwasher in the first image with the one shown in the second image. Keep its position in the cabinetry and leave everything else unchanged.",
+    "sink": "Replace the sink in the first image with the sink shown in the second image. Keep the countertop cutout and plumbing position, and leave everything else unchanged.",
+    "faucet": "Replace the faucet in the first image with the faucet shown in the second image. Keep its position at the sink and leave everything else unchanged.",
+    "pendant_lights": "Replace the pendant lights in the first image with the fixtures shown in the second image. Keep their number and hanging position, and leave everything else unchanged."
+  },
+
+  "caveats": {
+    "finish_reference": "Style preview from your example. The color and material are guided by the photo you attached; exact pattern repeat, grain direction, and grout lines may differ from the real product.",
+    "object_reference": "Style-accurate, not spec-accurate. This shows an appliance in the style of your example — it is not a guarantee of the exact model, dimensions, or that it will fit. Confirm measurements and the real product before buying."
+  }
+}

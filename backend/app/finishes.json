@@ -1,42 +1,52 @@
 {
   "cabinets": [
-    { "label": "Matte Navy", "instruction": "change the cabinets to matte navy blue" },
-    { "label": "Sage Green", "instruction": "change the cabinets to sage green" },
-    { "label": "Warm White", "instruction": "change the cabinets to warm white" },
-    { "label": "Charcoal", "instruction": "change the cabinets to charcoal gray" },
-    { "label": "Walnut Wood", "instruction": "change the cabinets to natural walnut wood veneer" },
-    { "label": "Black", "instruction": "change the cabinets to matte black" }
+    { "label": "Matte Sage Green", "instruction": "change the cabinets to a matte sage green finish, keep the cabinet layout, countertops, backsplash, flooring, and appliances exactly the same" },
+    { "label": "Matte Navy Blue", "instruction": "change the cabinets to a matte navy blue finish, keep the cabinet layout, countertops, backsplash, flooring, and appliances exactly the same" },
+    { "label": "Warm White Shaker", "instruction": "change the cabinets to a warm white painted finish, keep the shaker door style, layout, countertops, backsplash, flooring, and appliances exactly the same" },
+    { "label": "Charcoal Gray", "instruction": "change the cabinets to a matte charcoal gray finish, keep the cabinet layout, countertops, backsplash, flooring, and appliances exactly the same" },
+    { "label": "Natural Walnut", "instruction": "change the cabinets to a natural walnut wood veneer with visible grain, keep the cabinet layout, countertops, backsplash, flooring, and appliances exactly the same" },
+    { "label": "Matte Black", "instruction": "change the cabinets to a matte black finish, keep the cabinet layout, countertops, backsplash, flooring, and appliances exactly the same" },
+    { "label": "Pale Oak", "instruction": "change the cabinets to a pale rift-cut oak finish with a light matte sealant, keep the cabinet layout, countertops, backsplash, flooring, and appliances exactly the same" },
+    { "label": "Soft Cream", "instruction": "change the cabinets to a soft cream painted finish, keep the cabinet layout, countertops, backsplash, flooring, and appliances exactly the same" }
   ],
   "countertops": [
-    { "label": "Calacatta Marble", "instruction": "change the countertops to Calacatta marble with gold veining" },
-    { "label": "Black Granite", "instruction": "change the countertops to polished black granite" },
-    { "label": "Butcher Block", "instruction": "change the countertops to light oak butcher block wood" },
-    { "label": "Concrete", "instruction": "change the countertops to honed concrete gray" },
-    { "label": "Quartz White", "instruction": "change the countertops to pure white quartz" },
-    { "label": "Soapstone", "instruction": "change the countertops to dark soapstone" }
+    { "label": "Calacatta Marble", "instruction": "change the countertops to Calacatta marble with soft gray and gold veining, keep the cabinets, backsplash, flooring, and appliances unchanged" },
+    { "label": "White Quartz", "instruction": "change the countertops to a pure white quartz with a subtle fine grain, keep the cabinets, backsplash, flooring, and appliances unchanged" },
+    { "label": "Honed Black Granite", "instruction": "change the countertops to honed black granite with a matte finish, keep the cabinets, backsplash, flooring, and appliances unchanged" },
+    { "label": "Butcher Block", "instruction": "change the countertops to a light oak butcher block wood surface, keep the cabinets, backsplash, flooring, and appliances unchanged" },
+    { "label": "Honed Concrete", "instruction": "change the countertops to honed gray concrete, keep the cabinets, backsplash, flooring, and appliances unchanged" },
+    { "label": "Soapstone", "instruction": "change the countertops to dark soapstone with soft veining, keep the cabinets, backsplash, flooring, and appliances unchanged" },
+    { "label": "Warm Quartzite", "instruction": "change the countertops to a warm taupe quartzite with gentle movement, keep the cabinets, backsplash, flooring, and appliances unchanged" },
+    { "label": "Terrazzo", "instruction": "change the countertops to a pale terrazzo with fine multicolor chips, keep the cabinets, backsplash, flooring, and appliances unchanged" }
   ],
   "backsplash": [
-    { "label": "White Subway", "instruction": "change the backsplash to classic white subway tile" },
-    { "label": "Zellige Terracotta", "instruction": "change the backsplash to Moroccan zellige terracotta tile" },
-    { "label": "Black Hex Marble", "instruction": "change the backsplash to black hexagonal marble mosaic" },
-    { "label": "Sage Zellige", "instruction": "change the backsplash to sage green zellige tile" },
-    { "label": "Polished Brass Fish Scale", "instruction": "change the backsplash to polished brass fish-scale tile" },
-    { "label": "Wood Look Porcelain", "instruction": "change the backsplash to wood-look porcelain slabs" }
+    { "label": "White Subway Tile", "instruction": "change the backsplash to classic glossy white subway tile, keep the cabinets, countertops, flooring, and appliances unchanged" },
+    { "label": "Zellige Terracotta", "instruction": "change the backsplash to handmade Moroccan zellige tile in terracotta, keep the cabinets, countertops, flooring, and appliances unchanged" },
+    { "label": "Sage Zellige", "instruction": "change the backsplash to handmade zellige tile in soft sage green, keep the cabinets, countertops, flooring, and appliances unchanged" },
+    { "label": "Black Marble Hex", "instruction": "change the backsplash to a black hexagonal marble mosaic, keep the cabinets, countertops, flooring, and appliances unchanged" },
+    { "label": "Vertical Stack White", "instruction": "change the backsplash to vertically stacked matte white tile, keep the cabinets, countertops, flooring, and appliances unchanged" },
+    { "label": "Marble Slab", "instruction": "change the backsplash to a full-height white marble slab with gray veining, keep the cabinets, countertops, flooring, and appliances unchanged" },
+    { "label": "Brass Fish-Scale", "instruction": "change the backsplash to polished brass fish-scale tile, keep the cabinets, countertops, flooring, and appliances unchanged" },
+    { "label": "Glossy Sky Blue", "instruction": "change the backsplash to glossy sky blue ceramic tile, keep the cabinets, countertops, flooring, and appliances unchanged" }
   ],
   "flooring": [
-    { "label": "Light Oak Hardwood", "instruction": "change the floor to light oak hardwood planks" },
-    { "label": "Dark Walnut", "instruction": "change the floor to dark walnut hardwood" },
-    { "label": "Terracotta Tile", "instruction": "change the floor to terracotta clay tiles" },
-    { "label": "Polished Concrete", "instruction": "change the floor to polished concrete" },
-    { "label": "Black and White Checkerboard", "instruction": "change the floor to a black and white checkerboard tile pattern" },
-    { "label": "Herringbone Parquet", "instruction": "change the floor to herringbone parquet in pale ash" }
+    { "label": "Light Oak Plank", "instruction": "change the floor to light oak hardwood planks, keep the cabinets, countertops, backsplash, and appliances unchanged" },
+    { "label": "Dark Walnut Plank", "instruction": "change the floor to dark walnut hardwood planks, keep the cabinets, countertops, backsplash, and appliances unchanged" },
+    { "label": "Herringbone Oak", "instruction": "change the floor to oak laid in a herringbone pattern, keep the cabinets, countertops, backsplash, and appliances unchanged" },
+    { "label": "Terracotta Tile", "instruction": "change the floor to warm terracotta clay tiles, keep the cabinets, countertops, backsplash, and appliances unchanged" },
+    { "label": "Polished Concrete", "instruction": "change the floor to smooth polished concrete, keep the cabinets, countertops, backsplash, and appliances unchanged" },
+    { "label": "Checkerboard Marble", "instruction": "change the floor to a black and white checkerboard marble tile pattern, keep the cabinets, countertops, backsplash, and appliances unchanged" },
+    { "label": "Wide Ash Plank", "instruction": "change the floor to wide pale ash wood planks, keep the cabinets, countertops, backsplash, and appliances unchanged" },
+    { "label": "Slate Tile", "instruction": "change the floor to matte charcoal slate tile, keep the cabinets, countertops, backsplash, and appliances unchanged" }
   ],
   "paint": [
-    { "label": "Crisp White", "instruction": "paint the walls crisp white" },
-    { "label": "Warm Greige", "instruction": "paint the walls warm greige" },
-    { "label": "Soft Sage", "instruction": "paint the walls soft sage green" },
-    { "label": "Deep Navy", "instruction": "paint the walls deep navy blue" },
-    { "label": "Terracotta", "instruction": "paint the walls terracotta orange" },
-    { "label": "Slate Blue", "instruction": "paint the walls slate blue" }
+    { "label": "Crisp White", "instruction": "paint the walls crisp white, keep the cabinets, countertops, backsplash, flooring, and appliances unchanged" },
+    { "label": "Warm Greige", "instruction": "paint the walls a warm greige, keep the cabinets, countertops, backsplash, flooring, and appliances unchanged" },
+    { "label": "Soft Sage", "instruction": "paint the walls soft sage green, keep the cabinets, countertops, backsplash, flooring, and appliances unchanged" },
+    { "label": "Deep Navy", "instruction": "paint the walls deep navy blue, keep the cabinets, countertops, backsplash, flooring, and appliances unchanged" },
+    { "label": "Terracotta", "instruction": "paint the walls a muted terracotta, keep the cabinets, countertops, backsplash, flooring, and appliances unchanged" },
+    { "label": "Slate Blue", "instruction": "paint the walls slate blue, keep the cabinets, countertops, backsplash, flooring, and appliances unchanged" },
+    { "label": "Soft Clay", "instruction": "paint the walls a soft clay pink, keep the cabinets, countertops, backsplash, flooring, and appliances unchanged" },
+    { "label": "Pale Butter", "instruction": "paint the walls a pale butter yellow, keep the cabinets, countertops, backsplash, flooring, and appliances unchanged" }
   ]
 }

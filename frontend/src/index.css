@@ -1,3 +1,26 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body {
+  @apply bg-canvas text-ink-100 font-sans antialiased;
+}
+
+input[type="range"].ba {
+  -webkit-appearance: none;
+  height: 4px;
+  border-radius: 99px;
+  background: #322d24;
+  width: 100%;
+  cursor: pointer;
+}
+input[type="range"].ba::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #d28f5c;
+  border: 3px solid #1a140d;
+  box-shadow: 0 0 0 1px #d28f5c, 0 4px 10px -2px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+}

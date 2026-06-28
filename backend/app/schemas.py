@@ -48,6 +48,7 @@ class LayerResponse(BaseModel):
 class ExportSelection(BaseModel):
     label: str
     image_b64: str
+    category: Optional[str] = None
 
 
 class ExportRequest(BaseModel):
@@ -93,3 +94,32 @@ class OpenWallRequest(BaseModel):
 class OpenWallResponse(BaseModel):
     image_b64: str
     invented_space: bool = True
+
+
+# --- Reference edit models ---
+
+class ReferenceFinishRequest(BaseModel):
+    image_b64: str
+    reference_b64: str
+    target: str
+    note: str = ""          # optional free-text to refine intent
+    seed: int = 42
+
+
+class ReferenceFinishResponse(BaseModel):
+    image_b64: str
+    style_only: bool = True
+
+
+class ReferenceObjectRequest(BaseModel):
+    image_b64: str
+    reference_b64: str
+    target: str
+    note: str = ""          # optional free-text to refine intent
+    seed: int = 42
+
+
+class ReferenceObjectResponse(BaseModel):
+    image_b64: str
+    style_accurate: bool = True
+    spec_accurate: bool = False

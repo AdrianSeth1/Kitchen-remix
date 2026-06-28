@@ -34,3 +34,6 @@ Thumbs.db
 # Output scratch
 out*.png
 out*.jpg
+
+# Claude / Cowork
+.claude/

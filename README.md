@@ -1,128 +1,97 @@
 # Kitchen Remix
 
-Photorealistic kitchen remodel visualization powered by **FLUX.1 Kontext [dev]** running locally on an RTX 4090.
+Take a photo of a real kitchen and preview remodel options — new cabinets, countertops, backsplash, flooring, paint — as photorealistic edits, before spending a dollar on the real thing. It runs a local image-editing model (FLUX.1 Kontext) on a home RTX 4090, so the photos never leave the machine.
 
-Upload a photo of your kitchen and explore finish swaps, layered edits, and structural experiments — all rendered with a diffusion model, side-by-side.
+The project has a second purpose: it is built to be honest about what an image model can and cannot know. That honesty is the most interesting engineering decision here, so it is documented up front rather than buried.
 
----
+## The problem
 
-## What this does (and what it honestly cannot do)
+Most people remodeling a kitchen can't picture the result. Showroom samples and Pinterest boards don't show *your* kitchen with *that* finish, and a designer's renders cost money and time. The people this was built for — my parents — wanted to compare a few directions before committing, without learning CAD or paying for mockups.
 
-| Feature | Reliability | Why |
-|---|---|---|
-| Finish swaps (cabinets, countertops, backsplash, flooring, paint) | **Reliable** | No new spatial information needed — the model only changes surface appearance |
-| Object removal | **Reliable** | Filling a masked region with matching background is well-supported |
-| Object relocation | **Approximate** | The model must invent placement — scale and depth may be wrong |
-| Wall removal / opening | **Approximate** | The space beyond the wall is fabricated, not the real adjacent room |
-| Geometry-controlled structural change (Phase 5) | **Accurate** | Only possible when the user supplies a geometry control (depth map, rendered blockout) |
+The trap with AI image tools is that they will cheerfully generate *anything*, including changes the model has no real basis for. A confident render of a wall that isn't there is worse than no render: it invites a real decision based on a guess. So the design question wasn't "what can the model do?" but "what can the model do *reliably*, and how do we keep the rest clearly labeled?"
 
-The UI labels every experimental result visibly. Scale and placement in experimental results are directional only — good for feel, not for measurements.
+## The approach: honest scope tiers
 
----
+Edits are sorted into three tiers by how much the model has to invent.
 
-## Stack
+**Core — reliable.** Finish swaps (cabinets, countertops, backsplash, flooring, paint), A/B comparison, layered edits, and object removal. These are trustworthy because none of them require information the photo doesn't already contain. Repainting a cabinet or swapping a countertop is a surface change; removing an object only asks the model to rebuild walls and floor it can already see. The app treats these as dependable previews.
 
-- **Backend:** Python 3.11, FastAPI, Uvicorn, PyTorch + CUDA, diffusers, Pillow
-- **Model:** FLUX.1 Kontext [dev] (fp8, loaded once at startup, kept warm in VRAM)
-- **Frontend:** React 18, Vite, Tailwind CSS
+**Experimental — approximate.** Moving an object to a new spot, and opening or removing a wall. The model invents geometry it cannot actually know — the scale of the moved object, the room beyond the wall. These are directional only and labeled in the app as *not dimensionally accurate*. They convey feel, not measurement.
 
----
+**Stretch — accurate structural.** A hybrid pipeline where the user supplies the new layout as a geometry control (a depth map, edge image, or rough blockout) and the model is restricted to adding realism on top of geometry it was *given*. This is the honest way to do structural change: the layout comes from the user, the model only renders it.
 
-## Setup
+Showing where the line sits — and refusing to let the model cross it silently — is the point. It reads as engineering maturity precisely because overclaiming would have been easier.
 
-### 1. Clone and set up secrets
+## How it works (plain language)
 
-```bash
-git clone <repo>
-cd kitchen-remix
-cp backend/.env.example backend/.env
-# edit backend/.env and add your HF_TOKEN
+```
+  Browser (React)                 FastAPI backend                FLUX.1 Kontext
+  ─────────────────               ───────────────                ──────────────
+  upload a photo  ──base64 PNG──▶  validate + resize  ──image──▶  load once at
+  pick finishes                    to a model-safe size           startup, stay
+  hit "compare"                    │                              warm in VRAM
+        ▲                          ▼
+        └────────── edited images ── run inference in a
+                                      threadpool (event loop
+                                      never blocks)
 ```
 
-### 2. Python environment
+A photo is sent from the browser to the backend as base64. The backend resizes it to a size the model's image encoder can handle, then runs an **instruction-based edit** — a plain-English sentence like *"change the cabinets to matte sage green, keep everything else unchanged"* — with no manual masking required for the core finishes. The same random seed is reused across an A/B set, so only the instruction changes between variants and the rest of the scene stays put; that is what makes the comparison fair.
+
+The model loads once when the server starts and stays resident in GPU memory, because reloading per request is slow and risks running out of memory. Inference runs in a worker thread so the API stays responsive.
+
+Two small JSON files — `finishes.json` and `structural.json` — hold the curated edit instructions, phrased the way Kontext responds to best (name the target, state what stays unchanged). Keeping them as data, not code, means the preset library can grow without touching the pipeline.
+
+## Architecture at a glance
+
+| Layer | Choice | Why |
+| --- | --- | --- |
+| Editing model | FLUX.1 Kontext [dev], run locally | Instruction-based editing, no masking; Qwen-Image-Edit is the commercial-friendly fallback |
+| Backend | FastAPI + Pydantic | Typed request/response schemas; async endpoints |
+| Inference | Loaded once at startup, run in a threadpool | Avoids reload cost and OOM; keeps the event loop free |
+| Reproducibility | Fixed seed across an A/B set | Only the finish differs between variants, not the composition |
+| Frontend | React + Vite + Tailwind | Fast dev loop; single-page UI |
+| Image transport | base64 PNG over JSON | Simple; no multipart handling needed yet |
+| Hardware target | RTX 4090, 24 GB, bfloat16 | Fits the transformer in VRAM with CPU offload for the text encoders |
+
+## Demo
+
+> _Before / after pair goes here once a sample run is captured._
+>
+> Suggested layout: original photo on the left, an A/B strip of three cabinet finishes on the right, and one structural example clearly stamped **approximate**.
+
+## What's built
+
+Core finishes, A/B comparison, layered edits, object removal, the experimental structural modes (move / open wall) with caveats, and a one-page spec-sheet export for handing to a contractor. The hybrid geometry-controlled mode is scoped and stubbed but not yet wired in. See `docs/project-plan.md` for milestone status and `handoff.md` for the running build log.
+
+## Running it
+
+Backend:
 
 ```bash
 cd backend
-python -m venv .venv
-# Windows:
-.venv\Scripts\activate
-# Mac/Linux:
-source .venv/bin/activate
-
+python -m venv .venv && source .venv/bin/activate   # or .venv\Scripts\activate on Windows
 pip install -r requirements.txt
-# Install PyTorch separately with your CUDA version:
-# pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+cp .env.example .env        # add your Hugging Face token
+uvicorn app.main:app --reload
 ```
 
-### 3. Frontend
+The server boots even without the ML stack installed — it just reports `model_loaded: false` until the weights are present, which keeps the API testable without a GPU.
+
+Frontend:
 
 ```bash
 cd frontend
 npm install
+npm run dev                 # dev server proxies /api → localhost:8000
 ```
 
-### 4. Run (dev)
+In production, `npm run build` emits a static bundle that FastAPI serves directly, so the whole thing runs from one `uvicorn` command.
 
-Two terminals:
+## A note on the model
 
-```bash
-# Terminal 1 — backend
-cd backend
-uvicorn app.main:app --reload --port 8000
-
-# Terminal 2 — frontend
-cd frontend
-npm run dev
-# opens http://localhost:5173
-```
-
-### 5. Run (production — single command)
-
-```bash
-cd frontend && npm run build
-cd ../backend
-uvicorn app.main:app --port 8000
-# visit http://localhost:8000
-```
+FLUX.1 Kontext [dev] is used for local development and previews. For any commercial use, Qwen-Image-Edit is the intended fallback — the pipeline wrapper is the only piece that would change.
 
 ---
 
-## Architecture
-
-```
-kitchen-remix/
-  backend/app/
-    main.py        # FastAPI app, model loaded at startup via lifespan
-    pipeline.py    # FLUX.1 Kontext wrapper — edit_image(image, instruction, seed)
-    structural.py  # remove / move / open-wall helpers (Phase 3.5)
-    hybrid.py      # Phase 5 stretch: geometry-controlled rendering
-    routes.py      # all endpoints — inference runs in threadpool
-    schemas.py     # Pydantic request / response models
-    config.py      # paths, model IDs, defaults
-    finishes.json  # finish presets by category
-    structural.json# instruction templates and caveats
-  frontend/src/
-    App.jsx        # main app shell
-    components/    # upload, A/B grid, layer editor, slider, structural tab
-  models/          # weight cache — gitignored
-  samples/         # sample kitchen photos
-```
-
-**Key design decisions:**
-
-- Model loads once at startup and stays in VRAM — reloading per request risks OOM and is slow.
-- Fixed seed is used across all A/B variants so only the finish changes, not the composition.
-- Inference runs in a `run_in_threadpool` call so the FastAPI event loop is never blocked.
-- `approximate: true` / `invented_space: true` flags travel with every experimental result so the UI always knows what to label.
-
----
-
-## Development phases
-
-- [x] **Phase 0** — Scaffold, `.gitignore`, FastAPI `/health`, Vite placeholder
-- [ ] **Phase 1** — Inference core: `edit_image()` CLI, fp8 Kontext, seed reproducibility
-- [ ] **Phase 2** — Core API: `/edit`, `/ab`, `/layer`, `/export`
-- [ ] **Phase 3** — Core frontend: upload, A/B grid, layer editor, before/after slider
-- [ ] **Phase 3.5** — Structural tab: remove, move, open-wall with caveat banners
-- [ ] **Phase 4** — Polish: export spec sheet, sample photos, README demo
-- [ ] **Phase 5** — Stretch: geometry-controlled rendering via ControlNet
+*Built as a practical tool for one family's remodel and as a study in scoping an AI feature to what it can actually be trusted to do.*

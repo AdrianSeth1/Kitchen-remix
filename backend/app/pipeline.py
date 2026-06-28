@@ -58,13 +58,39 @@ def load_pipeline() -> None:
         )
         return
 
-    logger.info("Loading %s (bfloat16) …", config.KONTEXT_MODEL_ID)
-    pipe = FluxKontextPipeline.from_pretrained(
-        config.KONTEXT_MODEL_ID,
+    # fp8-quantize the transformer (the ~24 GB piece) down to ~12 GB so it fits a
+    # 24 GB card with headroom. Optional + graceful: if optimum-quanto is missing
+    # or quantization fails, fall back to full bf16.
+    transformer = None
+    if config.USE_FP8:
+        try:
+            from diffusers import FluxTransformer2DModel, QuantoConfig
+            logger.info("Loading transformer in fp8 (quanto) — ~12 GB …")
+            transformer = FluxTransformer2DModel.from_pretrained(
+                config.KONTEXT_MODEL_ID,
+                subfolder="transformer",
+                quantization_config=QuantoConfig(weights_dtype="float8"),
+                torch_dtype=torch.bfloat16,
+                token=config.HF_TOKEN or None,
+                cache_dir=str(config.MODELS_DIR),
+            )
+        except ImportError:
+            logger.warning(
+                "optimum-quanto not installed — loading full bf16 (~24 GB, may spill "
+                "to system RAM and run slow). Run: pip install optimum-quanto, then restart."
+            )
+        except Exception as exc:  # noqa: BLE001 — quantization can fail many ways
+            logger.warning("fp8 quantization failed (%s) — falling back to bf16.", exc)
+
+    logger.info("Loading %s …", config.KONTEXT_MODEL_ID)
+    kwargs = dict(
         torch_dtype=torch.bfloat16,
         token=config.HF_TOKEN or None,
         cache_dir=str(config.MODELS_DIR),
     )
+    if transformer is not None:
+        kwargs["transformer"] = transformer
+    pipe = FluxKontextPipeline.from_pretrained(config.KONTEXT_MODEL_ID, **kwargs)
 
     # Offload T5 + CLIP to CPU RAM between ops; transformer stays in VRAM.
     pipe.enable_model_cpu_offload()
@@ -72,11 +98,28 @@ def load_pipeline() -> None:
     pipe.enable_vae_slicing()
 
     _pipeline = pipe
-    logger.info("Pipeline ready.")
+    logger.info("Pipeline ready (fp8=%s).", transformer is not None)
 
 
 def is_loaded() -> bool:
     return _pipeline is not None
+
+
+def unload() -> None:
+    """Drop the pipeline and free its VRAM so the other model can load."""
+    global _pipeline
+    if _pipeline is None:
+        return
+    _pipeline = None
+    try:
+        import gc
+        import torch
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    except ImportError:
+        pass
+    logger.info("Kontext pipeline unloaded.")
 
 
 def prepare_image(img: Image.Image, max_side: int = 1024) -> Image.Image:
@@ -122,6 +165,55 @@ def edit_image(image: Image.Image, instruction: str, seed: int) -> Image.Image:
     )
 
     return result.images[0]
+
+
+def reference_finish(
+    kitchen: Image.Image, reference: Image.Image, target: str, seed: int, note: str = ""
+) -> Image.Image:
+    """
+    Tier A — finish-by-reference on Kontext.
+
+    Kontext can't take two separate inputs through diffusers, so we stitch the
+    kitchen and the reference into one [ kitchen | reference ] canvas, edit it,
+    then crop back to the kitchen region. The crop uses the kitchen's *fraction*
+    of the canvas width, so it stays correct even after prepare_image() rescales
+    the canvas (which it usually does, since a stitched canvas exceeds 1024px).
+    """
+    from . import references
+
+    if target not in references.FINISH_REFERENCE_TEMPLATES:
+        raise ValueError(
+            f"Unknown target '{target}'. "
+            f"Valid targets: {list(references.FINISH_REFERENCE_TEMPLATES)}"
+        )
+
+    target_height = 768
+    kitchen_w, kitchen_h = kitchen.size
+    ref_w, ref_h = reference.size
+
+    new_kitchen_w = max(1, int(kitchen_w * target_height / kitchen_h))
+    new_ref_w = max(1, int(ref_w * target_height / ref_h))
+
+    kitchen_resized = kitchen.resize((new_kitchen_w, target_height), Image.LANCZOS)
+    ref_resized = reference.resize((new_ref_w, target_height), Image.LANCZOS)
+
+    canvas_w = new_kitchen_w + new_ref_w
+    canvas = Image.new("RGB", (canvas_w, target_height))
+    canvas.paste(kitchen_resized, (0, 0))
+    canvas.paste(ref_resized, (new_kitchen_w, 0))
+
+    prepared = prepare_image(canvas)
+    instruction = references.FINISH_REFERENCE_TEMPLATES[target]
+    if note.strip():
+        instruction = f"{instruction} {note.strip()}"
+    result = edit_image(prepared, instruction, seed)
+
+    # Crop the kitchen region by its fraction of the canvas width — robust to
+    # whatever rescaling prepare_image() applied.
+    rw, rh = result.size
+    split = round(rw * new_kitchen_w / canvas_w)
+    cropped = result.crop((0, 0, split, rh))
+    return cropped.resize((kitchen_w, kitchen_h), Image.LANCZOS)
 
 
 # ── CLI ───────────────────────────────────────────────────────────────────────

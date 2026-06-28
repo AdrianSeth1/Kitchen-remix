@@ -26,7 +26,7 @@ kitchen-remix/
 │       ├── structural.py       # remove / move / open-wall helpers — calls pipeline.edit_image
 │       ├── hybrid.py           # Phase 5 stretch skeleton
 │       ├── config.py           # paths, model ID, seed defaults
-│       ├── finishes.json       # 30 finish presets across 5 categories
+│       ├── finishes.json       # 40 finish presets across 5 categories (8 each)
 │       └── structural.json     # instruction templates + UI caveat strings
 │
 ├── frontend/
@@ -128,6 +128,63 @@ curl -s -X POST http://localhost:8000/api/ab \
   }'
 # Expect: two images with identical scene composition, only cabinet colour differs
 ```
+
+---
+
+### Phase 3 — Core frontend ✅ (built by Qwen-Coder, repaired 2026-06-27)
+Upload, finish selector, A/B grid, layered edit, before/after slider, structural tab, export UI. Shipped with bugs; see the audit pass below.
+
+### Phase 4 — Polish 🔶
+Spec-sheet export endpoint, honest-scope README, parents' note, contractor spec-sheet copy, project plan. README + `docs/` done. Export endpoint still needs category grouping + per-finish thumbnails (`docs/contractor-spec-sheet-copy.md`).
+
+### Audit + fixes pass — 2026-06-27
+Full code review (`docs/audit.md`). Fixed the breaking frontend bugs:
+- `StructuralTab.jsx` — added the missing `handleRemove/handleMove/handleOpenWall` (undefined refs were crashing the app on photo upload).
+- `FinishSelector.jsx` — now honors `onSelectionChange` + multi-select, so selections actually populate.
+- `AblGrid.jsx` — receives all selected finishes + labels, lifts results via `onGenerateAB`, fixed the base-instruction input mis-wire.
+- `App.jsx` — wires `selectedFinishes → A/B → abResults → export`.
+- `ExportSpecSheet.jsx` — sources A/B previews (`{label, image_b64}`) so the payload matches the backend schema.
+- `finishes.json` — rewritten self-contained (40 presets), `structural.json` content improved (repo schema kept).
+
+Knowledge deliverables from the brief now live in `docs/`: `audit.md`, `for-the-parents.md`, `contractor-spec-sheet-copy.md`, `project-plan.md`, plus the rewritten root `README.md`.
+
+### Second fix pass — 2026-06-27 (cleared the remaining audit items)
+- `structural.py` now loads instruction templates from `structural.json` (cached) instead of hardcoding them — single source of truth. `move_object` is now a single pass via the curated template (was remove-then-add).
+- `StructuralTab.jsx` fetches `/api/structural-presets` and renders `caveats.move` / `caveats.open_wall` from the JSON.
+- `/export` groups finishes by category (canonical order) with per-finish thumbnails, headings, and the disclaimer footer, per `docs/contractor-spec-sheet-copy.md`. `ExportSelection` gained `category`; `App.jsx` tags A/B previews with their category (matched by label) before export.
+- Only `main.py` CORS is left open intentionally (fine behind the Vite proxy).
+
+### Phase 6 — reference-image edits ✅ (built by Qwen-Coder, repaired 2026-06-27)
+Spec: `docs/feature-reference-edits.md`; curated prompts: `backend/app/references.json`. Two tiers: Tier A finish-by-reference on Kontext (stitch a `[kitchen | reference]` canvas, crop back), Tier B object replacement on Qwen-Image-Edit-2509.
+
+Qwen's first pass didn't run — see `docs/audit.md` "Phase 6" for the 8 bugs (server wouldn't boot: syntax errors in `pipeline.py` and `routes.py`, missing `references.py`, wrong Qwen class, stub UI, ineffective VRAM swap, schema regression, crop bug). All repaired.
+
+**New files:** `backends.py` (swap manager), `qwen_pipeline.py` (Qwen wrapper, `QwenImageEditPlusPipeline`, `image=[kitchen, ref]`), `references.py` (loads `references.json`), `ReferenceTab.jsx`.
+
+**Optional `note` field (added 2026-06-27):** both reference requests take an optional `note` free-text string, appended to the curated template instruction (e.g. attach a black kitchen, target = countertops, note = "just the countertop color, a flat matte black"). Wired through `ReferenceFinishRequest`/`ReferenceObjectRequest` → `pipeline.reference_finish(..., note)` / routes for the Qwen path → the two text inputs in `ReferenceTab.jsx`.
+
+### Performance — fp8 quantization (added 2026-06-27)
+On a 24 GB 4090 the bf16 transformer (~24 GB) fills VRAM with no headroom, so Windows spills into shared system RAM and inference crawls. `pipeline.load_pipeline()` now fp8-quantizes the transformer to ~12 GB via diffusers `QuantoConfig(weights_dtype="float8")` (needs `optimum-quanto`, now in requirements). Optional + graceful: `config.USE_FP8` (env `USE_FP8=0` to disable); falls back to bf16 if quanto is missing or quant fails. Text encoders still offload to RAM via `enable_model_cpu_offload()`. Target after this: ~30–60 s/edit instead of minutes. Qwen (Tier B) is still full-precision — same treatment could be applied later if it spills.
+
+**Decision change (supersedes "load once at startup" for heavy models):** Kontext + Qwen-2509 can't co-reside on 24GB. `backends.ensure(kind)` keeps one resident, calling `pipeline.unload()` / `qwen_pipeline.unload()` (which now actually free VRAM via `gc` + `torch.cuda.empty_cache()`) before loading the other. Every Kontext endpoint calls `ensure("kontext")`; `/reference_object` calls `ensure("qwen")`. Swap costs a reload pause — fine for single-user. `/api/health` now reports `active_model`.
+
+---
+
+## Frontend data flow (post-fix)
+
+```
+Upload ──base64──▶ uploadedImageB64 (App state)
+                        │
+   FinishSelector ──onSelectionChange──▶ selectedFinishes [{label, instruction}]
+                        │
+   AblGrid  finishes = selectedFinishes.map(instruction)
+            labels   = selectedFinishes.map(label)
+            POST /api/ab ──▶ onGenerateAB ──▶ abResults [{label, image_b64}]
+                        │
+   ExportSpecSheet  selections = abResults  ──POST /api/export──▶ printable HTML
+```
+
+Single-finish path: clicking a finish also sets `selectedFinish` (string), used by the "Apply Selected Finish" button → `POST /api/edit` → before/after slider. Structural tab is independent: it POSTs target/destination/wall strings straight to `/api/remove|move|open_wall`.
 
 ---
 

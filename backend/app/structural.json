@@ -1,18 +1,22 @@
 {
   "remove_templates": [
     "Remove the {target} and fill the space with matching wall and flooring. Keep everything else in the kitchen unchanged.",
-    "Erase the {target} from the scene and reconstruct the surfaces behind it to match the surrounding wall and floor. Do not change anything else."
+    "Erase the {target} from the scene and reconstruct the surfaces behind it to match the surrounding wall and floor. Do not change anything else.",
+    "Take out the {target} and seamlessly extend the adjacent wall, floor, and trim over the gap. Leave the rest of the kitchen exactly as it is."
   ],
   "move_templates": [
-    "Move the {target} to {destination}. Keep everything else in the kitchen unchanged.",
-    "Relocate the {target} so it sits at {destination}. Rebuild the surface where it previously stood to match the surrounding materials. Do not change anything else."
+    "Move the {target} to {destination}. Rebuild the surface where it previously stood to match the surrounding materials. Keep everything else in the kitchen unchanged.",
+    "Relocate the {target} so it sits at {destination}, matching its original style and scale. Fill the old location to match the surrounding wall and floor. Do not change anything else.",
+    "Reposition the {target} to {destination}. Keep its finish and proportions consistent with the original, and leave all other cabinets, surfaces, and appliances unchanged."
   ],
   "open_wall_templates": [
     "Remove {wall_description} and open the kitchen to the adjacent room. Keep all other walls, cabinets, and surfaces unchanged.",
-    "Demolish {wall_description} to create an open-plan kitchen. Fill the gap with what would logically be visible beyond. Do not change anything else."
+    "Demolish {wall_description} to create an open-plan layout. Fill the opening with what would plausibly be visible beyond. Do not change anything else.",
+    "Open up {wall_description} into a wide pass-through, keeping the ceiling line and the existing finishes on every remaining surface intact."
   ],
   "caveats": {
-    "move": "Placement and scale are approximate. This shows rough feel, not accurate measurements.",
-    "open_wall": "The space beyond the removed wall is invented — not the real adjacent room. Use for visual inspiration only."
+    "remove": "Reliable. The model only needs to rebuild surfaces it can already see, so removals are trustworthy.",
+    "move": "Approximate. Placement, scale, and perspective are estimated, not measured — this shows rough feel, not a true layout.",
+    "open_wall": "Approximate. The space beyond the removed wall is invented, not the real adjacent room. Use for visual inspiration only."
   }
 }
